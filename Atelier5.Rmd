@@ -53,51 +53,46 @@ et de répondre a toutes les questions suivantes:
  1. Calculer l'IMC de tous les enfants et l'âge et rajoutez une colonne pour l'âge et une autre pour l' IMC.
  
 ```{r}
-# IMC
-imc <- imcenfant$poids/(imcenfant$taille/100)^2
-imc
-age <- imcenfant$an + imcenfant$mois/12
-age
-imcenfant <- data.frame(imcenfant,age,imc)
+IMC <- imcenfant$poids/(imcenfant$taille/100)^2
+age <- imcenfant$an+imcenfant$mois/12
+imcenfant <- data.frame(imcenfant, age,IMC)
 ```
 
 Commentaire:
 
  2. Extrayez les enfants ayant un IMC < 15 et un age <= 3.5 ans.
- 
- ```{r}
-# Utiliser pour repondre la question 2
-sexe.imc15 <- imcenfant$SEXE[imcenfant$imc < 15 & imcenfant$age <=5]
-sexe.imc15
 
+```{r}
+# Utiliser pour repondre la question 2
+enfants.sexe <-imcenfant$SEXE[(imcenfant$IMC < 15 & imcenfant$age <= 3.5)]
+enfants.sexe
 ```
 
 Commentaire:
 
  3. Donnez le nombre d'enfants vérifiant les conditions ci-dessus.
  
-```{r}
+ ```{r}
 # Utiliser pour repondre la question 3
-length(sexe.imc15)
-```
- 
+length(enfants.sexe)
 Commentaire:
 
  4. Est-ce que la plus part des enfants ayant un IMC < 15 et un age <= 3.5 ans sont dans une école située en zone d’éducation prioritaire?
  
 ```{r}
 # Utiliser pour repondre la question 4
-zep.imc15 <- imcenfant$zep[imcenfant$imc < 15 & imcenfant$age <= 3.5]
-table(zep.imc15)
+enfants.zep <-imcenfant$zep[(imcenfant$IMC < 15 & imcenfant$age <= 3.5)]
+enfants.zep
+table(enfants.zep)
 ```
  
  Commentaire:
 
  5. Représentez la fonction de densité de probabilité de l'IMC chez l'échantillon.
- 
+
 ```{r}
 # Utiliser pour repondre la question 4
-hist(imcenfant$imc, freq=FALSE,xlab="imc",col="purple")
+hist(imcenfant$IMC,freq = FALSE,xlab = "IMC",col="red")
 ```
  
  Commentaire:
@@ -112,28 +107,38 @@ hist(imcenfant$imc, freq=FALSE,xlab="imc",col="purple")
 difference <-mean(imcenfant$imc)-median(imcenfant$imc)
 difference
 ```
+
  
 Commentaire:
 
 
 6.2 Utilisez la fonction \texttt{qqplot()} pour étudier si l'IMC a le même fonction de distribution que une variable alèatoire normal. 
+
   
 ```{r}
-# Utiliser pour repondre la question 6.2
-imc.standard <-(imcenfant$imc-mean(imcenfant$imc))/sd(imcenfant$imc)
-n <- length(imc.standard)
-N <- rnorm(n)
-qqplot(imc.standard,N,xlim=c(-3,3),ylim=c(-3,3),xlab="imc.standard",ylab="Normal")
-par (new=T)
-plot(N,N,type="l",col="red",xlim=c(-3,3),ylim=c(-3,3),xlab="",ylab="")
+IMC.standard <- (imcenfant$IMC-mean(imcenfant$IMC))/sd(imcenfant$IMC)
+set.seed(123)
+normal.simulation <- rnorm(length(IMC.standard))
+qqplot(normal.simulation,IMC.standard,xlim=c(-3,3),ylim=c(-3,3))
+par(new=T)
+plot(normal.simulation,normal.simulation,type="l",col="red",xlim=c(-3,3),ylim=c(-3,3),
+     xlab = "",ylab = "")
 ```
   
-Commentaire:
-  
-6.3 Est-qu'on peut quantifier la différence entre les deux fonctions de distributions?
-  
+
+# Utiliser pour repondre la question 6.3
 ```{r}
 # Utiliser pour repondre la question 6.3
+# On va choisir 10 quantiles
+x_maille <- seq(from=0,to=0.9,by=0.1)
+#length(x_maille)
+#length(imcenfant$IMC)
+set.seed(123)
+A <- quantile(IMC.standard,x_maille)
+B <- quantile(rnorm(length(imcenfant$IMC)),x_maille)
+erreur <- sum((A-B)^2)/length(x_maille)
+erreur
+```
 
 
 ```
@@ -143,31 +148,53 @@ Commentaire:
  7. Est-ce que l'IMC chez les enfants dans une école située en zone d’éducation prioritaire est différent de les enfants qui ne sont pas dans une école située en zone d’éducation prioritaire?
  
 7.1 Donnez le résumé statistique de l'IMC chez les enfants dans une école située en zone d’éducation prioritaire.
-
 ```{r}
 # Utiliser pour repondre la question 7.1
-imcenfant.zepo <- imcenfant$imc[imcenfant$zep=="o"]
-summary(imcenfant.zepO)
+IMC.zepO <- imcenfant$IMC[imcenfant$zep=="O"]
+summary(IMC.zepO)
 ```
+
+
 
 Commentaire:
  
 7.2 Donnez le résumé statistique de l'IMC chez les enfants que ne sont pas dans une école située en zone d’éducation prioritaire. 
-
 ```{r}
 # Utiliser pour repondre la question 7.2
-imcenfant.zepN <- imcenfant$imc[imcenfant$zep=="N"]
-summary(imcenfant.zepN)
+IMC.zepN <- imcenfant$IMC[imcenfant$zep=="N"]
+summary(IMC.zepN)
 ```
+ Il y a dans l'échantillon `r length(IMC.zepN)` enfants qui ne sont pas dans dans une école située en zone d’éducation prioritaire.
+
+
  
- Commentaire:
 
 
   8. Quelle est la probabilité de trouver une fille dans dans une école située en zone d’éducation prioritaire?
   
+
 ```{r}
 # Utiliser pour repondre la question 8
+sexe.zepO <- imcenfant$SEXE[imcenfant$zep=="O"]
+sexe.zep1 <- imcenfant$SEXE[imcenfant$zep=="N"]
+probabilite.zep0 <- length(sexe.zepO)/length(imcenfant$zep)
+probabilite.zep1 <- length(sexe.zep1)/length(imcenfant$zep)
+table(sexe.zepO)
+prob.sexe.zepO <- table(sexe.zepO)/length(imcenfant$SEXE)
+prob.sexe.zepO[1]
+prob.sexe.zepO[2]
+```
 
+On a $\Pr(\texttt{zep}=\texttt{O}) =$ `r probabilite.zep0` et $\Pr(\texttt{zep}=\texttt{N}) =$ `r probabilite.zep1`. 
+Alors,
+$$
+\Pr(\texttt{SEXE}=\texttt{F}|\texttt{zep}=\texttt{O}) =
+\frac{\Pr( \texttt{SEXE}=\texttt{F} \cap \texttt{zep}=\texttt{O}))}{\Pr(\texttt{zep}=\texttt{O})}
+= \frac{\texttt{prob.sexe.zepO[1]}}{\texttt{probabilite.zep0}}
+$$
+d'ou
+$\Pr(\texttt{SEXE}=\texttt{F}|\texttt{zep}=\texttt{O}) =$
+`r prob.sexe.zepO[1]/probabilite.zep0`
 
 ```
 
@@ -175,16 +202,32 @@ summary(imcenfant.zepN)
   
 ```{r}
 # Utiliser pour repondre la question 9
-oui
+
+z.taille <- (imcenfant$taille-mean(imcenfant$taille))/sd(imcenfant$taille)
+set.seed(123)
+normal.simulation <- rnorm(length(z.taille))
+qqplot(normal.simulation,z.taille,xlim=c(-3,3),ylim=c(-3,3))
+par(new=T)
+plot(normal.simulation,normal.simulation,type="l",col="red",xlim=c(-3,3),ylim=c(-3,3),
+     xlab = "",ylab = "")
 ```
+
   
   Commentaire:
   
   10. Est-ce qu'on peut modelé le poids des enfants avec un variable aléatoire normal?
 
+
 ```{r}
 # Utiliser pour repondre la question 10
-oui
+z.poids <- (imcenfant$poids-mean(imcenfant$poids))/sd(imcenfant$poids)
+set.seed(123)
+normal.simulation <- rnorm(length(z.poids))
+qqplot(normal.simulation,z.taille,xlim=c(-3,3),ylim=c(-3,3))
+par(new=T)
+plot(normal.simulation,normal.simulation,type="l",col="red",xlim=c(-3,3),ylim=c(-3,3),
+     xlab = "",ylab = "")
 ```
+
 
   Commentaire:
